@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kishan Gohel - Video Editor & Story Teller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background: #0a0a0a;
+      color: #f0ede6;
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .pf-hero {
+      position: relative;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 2rem 3rem;
+      overflow: hidden;
+    }
+
+    .pf-film-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #0a0a0a 0%, #111 40%, #1a0a00 100%);
+    }
+
+    .pf-scanlines {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.015) 3px, rgba(255,255,255,0.015) 4px);
+      pointer-events: none;
+    }
+
+    .filmstrip-top {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 36px;
+      background: #111;
+      border-bottom: 1px solid #222;
+      display: flex; align-items: center;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .filmstrip-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 36px;
+      background: #111;
+      border-top: 1px solid #222;
+      display: flex; align-items: center;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .film-hole {
+      width: 22px; height: 16px;
+      border: 1.5px solid #333;
+      border-radius: 3px;
+      margin: 0 6px;
+      flex-shrink: 0;
+      background: #0a0a0a;
+    }
+
+    .pf-accent-line {
+      width: 48px; height: 3px;
+      background: #e8450a;
+      margin-bottom: 1rem;
+    }
+
+    .pf-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 12vw, 88px);
+      line-height: 0.9;
+      letter-spacing: 2px;
+      color: #f0ede6;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .pf-name span {
+      color: #e8450a;
+    }
+
+    .pf-tagline {
+      font-size: 13px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #888;
+      margin-top: 0.75rem;
+      font-weight: 300;
+      animation: fadeUp 0.8s 0.15s ease both;
+    }
+
+    .pf-about-hero {
+      max-width: 640px;
+      margin-top: 2rem;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    .pf-hook {
+      font-size: 20px;
+      line-height: 1.5;
+      color: #e8450a;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .pf-hook-sub {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #999;
+      font-weight: 300;
+    }
+
+    .pf-reel-ticker {
+      background: #e8450a;
+      padding: 10px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ticker-inner {
+      display: inline-block;
+      animation: ticker 25s linear infinite;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+    }
+
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .pf-nav {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1rem 2rem;
+      background: #0f0f0f;
+      border-bottom: 1px solid #1e1e1e;
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .pf-nav-item {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #666;
+      cursor: pointer;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .pf-nav-item.active {
+      color: #f0ede6;
+      border-bottom-color: #e8450a;
+    }
+
+    .pf-section {
+      padding: 3rem 2rem;
+    }
+
+    .pf-section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 3px;
+      color: #f0ede6;
+      margin-bottom: 0.5rem;
+    }
+
+    .pf-section-label {
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #e8450a;
+      margin-bottom: 2rem;
+    }
+
+    .pf-works-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .pf-work-card {
+      position: relative;
+      background: #0f0f0f;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .pf-work-card:hover {
+      transform: translateY(-4px);
+      border-color: #e8450a44;
+    }
+
+    .pf-work-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .pf-work-thumb iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .pf-play-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .pf-work-card:hover .pf-play-overlay {
+      opacity: 1;
+    }
+
+    .pf-play-btn {
+      width: 56px;
+      height: 56px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .pf-play-btn::after {
+      content: '▶';
+      margin-left: 3px;
+    }
+
+    .pf-work-info {
+      padding: 1rem 1.25rem;
+    }
+
+    .pf-work-cat {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #e8450a;
+      margin-bottom: 6px;
+    }
+
+    .pf-work-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 1px;
+      color: #f0ede6;
+      margin-bottom: 4px;
+    }
+
+    .pf-work-desc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .pf-skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .pf-skill-tag {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border: 1px solid #2a2a2a;
+      color: #888;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .pf-skill-tag.hot {
+      border-color: #e8450a44;
+      color: #e8450a;
+      background: rgba(232, 69, 10, 0.05);
+    }
+
+    .pf-about-section {
+      background: #0d0d0d;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .pf-about-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .pf-about-story {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #aaa;
+      margin-bottom: 1.5rem;
+    }
+
+    .pf-about-story strong {
+      color: #e8450a;
+      font-weight: 500;
+    }
+
+    .pf-timeline {
+      display: grid;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+
+    .pf-timeline-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .pf-timeline-dot {
+      width: 10px;
+      height: 10px;
+      background: #e8450a;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .pf-timeline-content {
+      flex: 1;
+    }
+
+    .pf-timeline-role {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 1px;
+      color: #f0ede6;
+      margin-bottom: 2px;
+    }
+
+    .pf-timeline-company {
+      font-size: 12px;
+      color: #e8450a;
+      margin-bottom: 4px;
+    }
+
+    .pf-timeline-desc {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.6;
+    }
+
+    .pf-contact-section {
+      background: #0a0a0a;
+    }
+
+    .pf-contact-content {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .pf-contact-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      letter-spacing: 3px;
+      color: #f0ede6;
+      margin-bottom: 1rem;
+    }
+
+    .pf-contact-subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    .pf-contact-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .pf-contact-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: #e8450a;
+      color: #fff;
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .pf-contact-btn:hover {
+      background: #ff5515;
+      transform: translateY(-2px);
+    }
+
+    .pf-contact-btn.secondary {
+      background: transparent;
+      border: 1px solid #333;
+      color: #aaa;
+    }
+
+    .pf-contact-btn.secondary:hover {
+      border-color: #e8450a;
+      color: #e8450a;
+      background: rgba(232, 69, 10, 0.05);
+    }
+
+    .pf-footer {
+      background: #080808;
+      padding: 2rem 2rem;
+      text-align: center;
+      border-top: 1px solid #1a1a1a;
+    }
+
+    .pf-footer-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      letter-spacing: 3px;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .pf-footer-tagline {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #222;
+    }
+
+    .pf-divider {
+      height: 1px;
+      background: #1a1a1a;
+      margin: 0 2rem;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .pf-cursor-blink {
+      display: inline-block;
+      width: 3px; height: 0.8em;
+      background: #e8450a;
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .pf-hero {
+        min-height: 400px;
+        padding: 0 1.5rem 2rem;
+      }
+      
+      .pf-name {
+        font-size: 48px;
+      }
+
+      .pf-section {
+        padding: 2rem 1.5rem;
+      }
+
+      .pf-works-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pf-contact-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <div class="pf-hero">
+    <div class="pf-film-bg"></div>
+    <div class="pf-scanlines"></div>
+    <div class="filmstrip-top" aria-hidden="true">
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+    </div>
+    <div style="position:relative; z-index:2; padding-top: 60px;">
+      <div class="pf-accent-line"></div>
+      <div class="pf-name">KISHAN<br><span>GOHEL</span><span class="pf-cursor-blink"></span></div>
+      <div class="pf-tagline">Video Editor &nbsp;·&nbsp; Story Teller &nbsp;·&nbsp; Motion Designer</div>
+      
+      <div class="pf-about-hero">
+        <div class="pf-hook">I don't just edit videos — I create content that gets views, keeps retention, and goes viral.</div>
+        <div class="pf-hook-sub">Every frame is crafted with strategy. Every cut serves your growth. That's what clients need, and that's what I deliver.</div>
+      </div>
+    </div>
+    <div class="filmstrip-bottom" aria-hidden="true">
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+      <div class="film-hole"></div><div class="film-hole"></div><div class="film-hole"></div>
+    </div>
+  </div>
+
+  <!-- Offer Ticker -->
+  <div class="pf-reel-ticker" aria-label="Special offer">
+    <span class="ticker-inner">
+      🔥 OFFER OFFER OFFER 🔥 Video Editing Just ₹700/Month &nbsp;·&nbsp; 4 Long Form Videos + 5 Short Reels + Thumbnails &nbsp;·&nbsp; 🔥 OFFER OFFER OFFER 🔥 Video Editing Just ₹700/Month &nbsp;·&nbsp; 4 Long Form Videos + 5 Short Reels + Thumbnails &nbsp;·&nbsp; 🔥 OFFER OFFER OFFER 🔥 Video Editing Just ₹700/Month &nbsp;·&nbsp; 4 Long Form Videos + 5 Short Reels + Thumbnails &nbsp;·&nbsp;
+    </span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="pf-nav" aria-label="Portfolio sections">
+    <a href="#youtube" class="pf-nav-item">YouTube Videos</a>
+    <a href="#shortform" class="pf-nav-item">Short Form</a>
+    <a href="#podcasts" class="pf-nav-item">Podcasts</a>
+    <a href="#documentary" class="pf-nav-item">Documentary</a>
+    <a href="#about" class="pf-nav-item">About</a>
+    <a href="#contact" class="pf-nav-item">Contact</a>
+  </nav>
+
+  <!-- YouTube Videos Section -->
+  <div class="pf-section" id="youtube">
+    <div class="pf-section-label">Long Form Content</div>
+    <div class="pf-section-title">YouTube Videos</div>
+    <div class="pf-works-grid">
+      
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/_AgutX62GUs" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">YouTube</div>
+          <div class="pf-work-title">Featured Video 1</div>
+        </div>
+      </div>
+
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/pixiXJaOi2A" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">YouTube</div>
+          <div class="pf-work-title">Featured Video 2</div>
+        </div>
+      </div>
+
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/EMKYu0P3NcU" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">YouTube</div>
+          <div class="pf-work-title">Featured Video 3</div>
+        </div>
+      </div>
+
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/xgfLO6hA9uc" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">YouTube</div>
+          <div class="pf-work-title">Featured Video 4</div>
+        </div>
+      </div>
+
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/99VHENEKA9o" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">YouTube</div>
+          <div class="pf-work-title">Featured Video 5</div>
+        </div>
+      </div>
+
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/B7GDr-VFuEo" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">YouTube</div>
+          <div class="pf-work-title">Featured Video 6</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="pf-divider"></div>
+
+  <!-- Documentary Section -->
+  <div class="pf-section" id="documentary">
+    <div class="pf-section-label">Faceless Content</div>
+    <div class="pf-section-title">Sports Documentary</div>
+    <div class="pf-works-grid">
+      
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/jenMK1aFmNo" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">Documentary</div>
+          <div class="pf-work-title">Faceless Sports Documentary</div>
+          <div class="pf-work-desc">Engaging storytelling with high retention editing</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="pf-divider"></div>
+
+  <!-- Short Form Section -->
+  <div class="pf-section" id="shortform">
+    <div class="pf-section-label">Viral Content</div>
+    <div class="pf-section-title">Short Form Reels</div>
+    <div class="pf-works-grid">
+      
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/jbRa6J8X-cc" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">YouTube Short</div>
+          <div class="pf-work-title">Short #1</div>
+        </div>
+      </div>
+
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/KAbh5lGwYPk" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">YouTube Short</div>
+          <div class="pf-work-title">Short #2</div>
+        </div>
+      </div>
+
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <a href="https://www.instagram.com/reel/DQE8K50EYnB/" target="_blank" style="display:block; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#111; color:#e8450a; text-decoration:none; font-family: 'Bebas Neue', sans-serif; font-size:24px; letter-spacing:2px;">
+            INSTAGRAM REEL
+          </a>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">Instagram Reel</div>
+          <div class="pf-work-title">Reel #1</div>
+        </div>
+      </div>
+
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <a href="https://www.instagram.com/reel/DXHZgW7DMpm/" target="_blank" style="display:block; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#111; color:#e8450a; text-decoration:none; font-family: 'Bebas Neue', sans-serif; font-size:24px; letter-spacing:2px;">
+            INSTAGRAM REEL
+          </a>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">Instagram Reel</div>
+          <div class="pf-work-title">Reel #2</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="pf-divider"></div>
+
+  <!-- Podcasts Section -->
+  <div class="pf-section" id="podcasts">
+    <div class="pf-section-label">Podcast Editing</div>
+    <div class="pf-section-title">Podcasts</div>
+    <div class="pf-works-grid">
+      
+      <div class="pf-work-card">
+        <div class="pf-work-thumb">
+          <iframe src="https://www.youtube.com/embed/-RoQm_KePJE" allowfullscreen loading="lazy"></iframe>
+          <div class="pf-play-overlay">
+            <div class="pf-play-btn"></div>
+          </div>
+        </div>
+        <div class="pf-work-info">
+          <div class="pf-work-cat">Podcast</div>
+          <div class="pf-work-title">Podcast Episode</div>
+          <div class="pf-work-desc">Professional audio and video editing</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="pf-divider"></div>
+
+  <!-- Tools & Skills Section -->
+  <div class="pf-section">
+    <div class="pf-section-label">What I Use</div>
+    <div class="pf-section-title">Tools</div>
+    <div class="pf-skills-row">
+      <div class="pf-skill-tag hot">Premiere Pro</div>
+      <div class="pf-skill-tag hot">After Effects</div>
+      <div class="pf-skill-tag hot">DaVinci Resolve</div>
+    </div>
+
+    <div class="pf-section-title" style="margin-top:2rem">Skills</div>
+    <div class="pf-skills-row">
+      <div class="pf-skill-tag hot">Storytelling</div>
+      <div class="pf-skill-tag hot">Retention Editing</div>
+      <div class="pf-skill-tag">Color Grading</div>
+      <div class="pf-skill-tag">Sound Design</div>
+      <div class="pf-skill-tag">Motion Graphics</div>
+      <div class="pf-skill-tag">Thumbnail Design</div>
+      <div class="pf-skill-tag">Content Strategy</div>
+    </div>
+  </div>
+
+  <div class="pf-divider"></div>
+
+  <!-- About Section -->
+  <div class="pf-section pf-about-section" id="about">
+    <div class="pf-about-content">
+      <div class="pf-section-label">My Journey</div>
+      <div class="pf-section-title">About Me</div>
+      
+      <div class="pf-about-story">
+        I'm not just another video editor clicking buttons in Premiere Pro. I'm a <strong>strategist who understands content</strong>. For the past 3 years, I've been crafting videos that don't just look good — they <strong>perform</strong>. Videos that retain viewers. Videos that go viral. Videos that grow channels.
+      </div>
+
+      <div class="pf-about-story">
+        Most editors will give you fancy transitions and color grading. But clients don't need that — they need <strong>views, retention, and growth</strong>. That's my specialty. I combine sharp editing skills with deep knowledge of what makes content click. Every cut, every frame, every sound is chosen with your audience in mind.
+      </div>
+
+      <div class="pf-timeline">
+        <div class="pf-timeline-item">
+          <div class="pf-timeline-dot"></div>
+          <div class="pf-timeline-content">
+            <div class="pf-timeline-role">Freelance Video Editor</div>
+            <div class="pf-timeline-company">8 Months (Current)</div>
+            <div class="pf-timeline-desc">Helping creators grow their channels through strategic editing and viral content creation. Not just editing — delivering results.</div>
+          </div>
+        </div>
+
+        <div class="pf-timeline-item">
+          <div class="pf-timeline-dot"></div>
+          <div class="pf-timeline-content">
+            <div class="pf-timeline-role">Video Editor</div>
+            <div class="pf-timeline-company">One Billion Media Agency · 3 Months</div>
+            <div class="pf-timeline-desc">Worked on high-volume content production for multiple clients, mastering fast turnarounds without compromising quality.</div>
+          </div>
+        </div>
+
+        <div class="pf-timeline-item">
+          <div class="pf-timeline-dot"></div>
+          <div class="pf-timeline-content">
+            <div class="pf-timeline-role">Video Editor (Bhagirath Jadeja)</div>
+            <div class="pf-timeline-company">Influx Media Agency · 2 Years · Rank #7 on YTJobs</div>
+            <div class="pf-timeline-desc">Started my journey here, learning the craft and ranking among the top video editors. Edited hundreds of videos across niches, mastering storytelling and retention techniques.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Contact Section -->
+  <div class="pf-section pf-contact-section" id="contact">
+    <div class="pf-contact-content">
+      <div class="pf-contact-title">Let's Create Something Epic</div>
+      <div class="pf-contact-subtitle">
+        Ready to take your content to the next level? Let's talk about your project.<br>
+        Fast turnaround · Professional quality · Results-driven editing
+      </div>
+
+      <div class="pf-contact-buttons">
+        <a href="https://wa.me/916354996078" target="_blank" class="pf-contact-btn">
+          WhatsApp Me
+        </a>
+        <a href="https://www.instagram.com/kishangohel._/" target="_blank" class="pf-contact-btn secondary">
+          Instagram
+        </a>
+      </div>
+
+      <div style="margin-top:3rem; padding-top:2rem; border-top:1px solid #1a1a1a;">
+        <div style="font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#666; margin-bottom:8px;">Direct Contact</div>
+        <div style="font-size:14px; color:#aaa;">+91 6354996078</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="pf-footer">
+    <div class="pf-footer-name">KISHAN GOHEL</div>
+    <div class="pf-footer-tagline">Video Editor · Story Teller · Motion Designer</div>
+  </footer>
+
+  <script>
+    // Smooth scroll for navigation
+    document.querySelectorAll('.pf-nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = item.getAttribute('href');
+        if (target.startsWith('#')) {
+          const element = document.querySelector(target);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    });
+
+    // Active nav on scroll
+    const sections = document.querySelectorAll('.pf-section[id]');
+    const navItems = document.querySelectorAll('.pf-nav-item');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= sectionTop - 200) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === `#${current}`) {
+          item.classList.add('active');
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
